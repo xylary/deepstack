@@ -3,8 +3,7 @@
 class ExtensiveGameNode:
     """ A class for a game node in an extensive form game.
     """
-    def __init__(self, player, children={}, hidden_from=[], utility={},
-        chance_probs={}):
+    def __init__(self, player):
         # Which player is to play in the node. Use -1 for terminal, 0 for
         # chance, 1 for player 1, 2 for player 2.
         self.player = player
@@ -12,19 +11,19 @@ class ExtensiveGameNode:
         # A dictionary of children for the node. Keys are the actions in the
         # node, and values are ExtensiveGameNode objects resulting from taking
         # the action in this node.
-        self.children = children
+        self.children = {}
 
         # Who can see the actions in this node.
-        self.hidden_from = hidden_from
+        self.hidden_from = []
 
         # Utility of the node to each player (as a dictionary). Only relevant
         # for terminal nodes.
-        self.utility = utility
+        self.utility = {}
 
         # If the node is a chance node, then store the chance probs. This is a
         # dictionary with keys the actions and probs the probability of choosing
         # this action.
-        self.chance_probs = chance_probs
+        self.chance_probs = {}
 
 class ExtensiveGame:
     
