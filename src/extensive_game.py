@@ -1,5 +1,4 @@
 
-
 class ExtensiveGameNode:
     """ A class for a game node in an extensive form game.
     """
@@ -36,10 +35,8 @@ class ExtensiveGame:
         """
         if only_leaves and len(node.children) == 0:
             print(action_list, node.utility)
-            print("Children: {}".format(node.children))
         elif not only_leaves:
             print(action_list)
-            print("Children: {}".format(node.children))
         for action, child in node.children.items():
             ExtensiveGame.print_tree_recursive(child, action_list + [action],
             only_leaves)
@@ -49,3 +46,37 @@ class ExtensiveGame:
         needed to get to each node from the root.
         """
         ExtensiveGame.print_tree_recursive(self.root, [], only_leaves)
+    
+    def build_information_sets(self, player):
+        """ Returns a dictionary from nodes to a unique identifier for the
+        information set containing the node. This is all for the given player.
+        """
+        info_set = {}
+
+        # We just recursively walk over the tree using a stack to store the
+        # nodes to explore.
+        node_stack = [self.root]
+        visible_actions_stack = [[]]
+        
+        # First build the information sets for player 1.
+        while len(node_stack) > 0:
+            node = node_stack.pop()
+            visible_actions = visible_actions_stack.pop()
+
+            # Add the information set for the node, indexed by the
+            # visible_actions list, to the information set dictionary. Use a
+            # tuple instead of a list so that it is hashable if we want later
+            # on.
+            info_set[node] = tuple(visible_actions)
+            
+            for action, child in node.children.items():
+                # Add all the children to the node stack and also the visible
+                # actions to the action stack. If an action is hidden from the
+                # player, then add -1 to signify this.
+                node_stack.append(child)
+                if player in node.hidden_from:
+                    visible_actions_stack.append(visible_actions + [-1])
+                else:
+                    visible_actions_stack.append(visible_actions + [action])
+
+        return info_set

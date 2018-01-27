@@ -1,4 +1,6 @@
 from extensive_game import ExtensiveGame, ExtensiveGameNode
+from example_strategy import random_strategy
+from best_response import best_response
 
 class OneCardPoker(ExtensiveGame):
     """ This is the game described on 'http://www.cs.cmu.edu/~ggordon/poker/'.
@@ -35,17 +37,18 @@ class OneCardPoker(ExtensiveGame):
         if len(action_list) == 0:
             # We are at the root of the tree, so we create a chance node for
             # player 1.
-            root = ExtensiveGameNode(1)
+            root = ExtensiveGameNode(0)
             # This node is hidden from player 2
             root.hidden_from = [2]
             for card in cards:
                 # Create a game tree below this node.
                 root.children[card] = OneCardPoker.create_one_card_tree([card], cards)
+                root.chance_probs[card] = 1.0 / len(cards)
             return ExtensiveGame(root)
         elif len(action_list) == 1:
             # We are at a chance node for player 2, so we create this chance
             # node, including its children.
-            node = ExtensiveGameNode(2)
+            node = ExtensiveGameNode(0)
             # This node is hidden from player 1
             node.hidden_from = [1]
             for card in cards:
@@ -54,6 +57,7 @@ class OneCardPoker(ExtensiveGame):
                     continue
                 # Otherwise create a child node below
                 node.children[card] = OneCardPoker.create_one_card_tree(action_list + [card], cards)
+                node.chance_probs[card] = 1.0 / (len(cards) - 1.0)
             return node
         elif len(action_list) == 2:
             # It's player 1's first turn.
@@ -76,7 +80,6 @@ class OneCardPoker(ExtensiveGame):
                 hole_cards = {1: action_list[0], 2: action_list[1]}
                 node.utility = OneCardPoker.compute_utility(action_list[2:],
                 hole_cards)
-                node.children = {}
                 return node
             else:
                 # The actions were [0,1], and so player 1 gets another chance to
@@ -91,10 +94,35 @@ class OneCardPoker(ExtensiveGame):
             hole_cards = {1: action_list[0], 2: action_list[1]}
             node.utility = OneCardPoker.compute_utility(action_list[2:],
             hole_cards)
-            node.children = {}
             return node
         assert False
-    
+
+    @staticmethod
+    def create_game(n_cards):
+        """ Creates the One Card Poker game, with the given number of uniquely
+        numbered cards in the deck, numbered 1 up to n_cards.
+        """
+        game_tree = OneCardPoker.create_one_card_tree([], range(1, n_cards+1))
+        info_sets_1 = game_tree.build_information_sets(1)
+        info_sets_2 = game_tree.build_information_sets(2)
+        return game_tree, info_sets_1, info_sets_2
+
 if __name__ == "__main__":
-    game = OneCardPoker.create_one_card_tree([], [1,2])
+    game, info_sets_1, info_sets_2 = OneCardPoker.create_game(3)
     game.print_tree(only_leaves=True)
+
+    # Join the two info set dictionaries
+    info_set_ids = info_sets_1.copy()
+    for k, v in info_sets_2.items():
+        if k.player == 2:
+            info_set_ids[k] = v
+
+    strategy_2 = random_strategy(game, 2)
+    print(strategy_2)
+    exploitability_2 = best_response(game, strategy_2, 1, info_set_ids)
+    print(exploitability_2)
+    
+    strategy_1 = random_strategy(game, 1)
+    print(strategy_1)
+    exploitability_1 = best_response(game, strategy_1, 2, info_set_ids)
+    print(exploitability_1)
