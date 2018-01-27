@@ -32,9 +32,10 @@ def random_strategy(game, player):
 
     return strategy
 
-def always_fold(game, player):
-    """ This strategy always folds. We return a dictionary from information set
-    identifiers to probabilities over actions for the given player.
+def constant_action(game, player, action):
+    """ This strategy always plays action 'action'. We return a dictionary from
+    information set identifiers to probabilities over actions for the given
+    player.
     - game is an ExtensiveGame instance.
     """
     info_sets = game.build_information_sets(player)
@@ -53,6 +54,6 @@ def always_fold(game, player):
         if not identifier in strategy:
             # Sample actions uniformly at random. Can change this later.
             strategy[identifier] = {a: 0.0 for a in actions}
-            strategy[identifier][0] = 1.0
+            strategy[identifier][action] = 1.0
 
     return strategy

@@ -1,5 +1,5 @@
 from extensive_game import ExtensiveGame, ExtensiveGameNode
-from example_strategy import random_strategy, always_fold
+from example_strategy import random_strategy, constant_action
 from best_response import best_response
 import numpy as np
 
@@ -20,7 +20,7 @@ class OneCardPoker(ExtensiveGame):
         """
         # The bets are 1 (for the ante), then the sum of the even actions (for
         # player 1) and the odd actions (for player 2).
-        bets = {1: 1, 2: 1}
+        bets = {1: 1.0, 2: 1.0}
         for i, action in enumerate(betting_actions):
             bets[(i%2)+1] += action
         winner = 1 if hole_cards[1] > hole_cards[2] else 2
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     print(np.mean(results), np.std(results) / np.sqrt(n))
 
     print("Now consider the strategy where player 2 always folds.")
-    strategy_2_0 = always_fold(game, 2)
+    strategy_2_0 = constant_action(game, 2, 0)
     exploitability_2_0, br_against_2_0 = best_response(game, strategy_2_0, 1,
     info_set_ids)
     print("The best response against this strategy has value: \
@@ -147,6 +147,20 @@ if __name__ == "__main__":
     print("The best response strategy is")
     print(br_against_2_0)
     results = game.expected_value(br_against_2_0, strategy_2_0, info_set_ids, n)
+    print("We now run {} games of this strategy against the best response, and \
+    find the mean value for player 1 is {} with standard error {}".format(n,
+    np.mean(results), np.std(results) / np.sqrt(n)))
+    print(np.mean(results), np.std(results) / np.sqrt(n))
+
+    print("Now consider the strategy where player 2 always bets.")
+    strategy_2_1 = constant_action(game, 2, 1)
+    exploitability_2_1, br_against_2_1 = best_response(game, strategy_2_1, 1,
+    info_set_ids)
+    print("The best response against this strategy has value: \
+    {}".format(exploitability_2_1))
+    print("The best response strategy is")
+    print(br_against_2_1)
+    results = game.expected_value(br_against_2_1, strategy_2_1, info_set_ids, n)
     print("We now run {} games of this strategy against the best response, and \
     find the mean value for player 1 is {} with standard error {}".format(n,
     np.mean(results), np.std(results) / np.sqrt(n)))
