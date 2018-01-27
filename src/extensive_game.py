@@ -1,3 +1,6 @@
+# coding: utf-8
+
+import numpy as np
 
 class ExtensiveGameNode:
     """ A class for a game node in an extensive form game.
@@ -80,3 +83,45 @@ class ExtensiveGame:
                     visible_actions_stack.append(visible_actions + [action])
 
         return info_set
+
+    def expected_value(self, strategy_1, strategy_2, info_set_ids, num_iters):
+        """ Given a strategy for player 1 and a strategy for player 2, compute
+        the expected value for player 1.
+        - strategy_1: should be a dictionary from information set identifiers
+          for player 1 for all of player 1's nodes to probabilities over actions
+              available in that information set.
+        - strategy_2: same for player 2.
+        """
+        results = []
+        for t in range(num_iters):
+            node = self.root
+            while node.player != -1:
+                # If it's a chance node, then sample an outcome.
+                if node.player == 0:
+                    actions = node.children.keys()
+                    probs = node.chance_probs.values()
+                elif node.player == 1:
+                    # It's player 1's node, so use their strategy to make a
+                    # decision.
+                    actions = strategy_1[info_set_ids[node]].keys()
+                    probs = strategy_1[info_set_ids[node]].values()
+                elif node.player == 2:
+                    # It's player 2's node, so use their strategy to make a
+                    # decision.
+                    actions = strategy_2[info_set_ids[node]].keys()
+                    probs = strategy_2[info_set_ids[node]].values()
+
+                actions = [a for a in actions]
+                probs = [p for p in probs]
+
+                # Sample an action from the probability distribution.
+                action = np.random.choice(np.array(actions), p=np.array(probs))
+
+                # Move into the child node.
+                node = node.children[action]
+
+            # The node is terminal. Add the utility for player 1 to the results.
+            results.append(node.utility[1])
+        
+        return results
+

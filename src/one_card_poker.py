@@ -1,6 +1,7 @@
 from extensive_game import ExtensiveGame, ExtensiveGameNode
-from example_strategy import random_strategy
+from example_strategy import random_strategy, always_fold
 from best_response import best_response
+import numpy as np
 
 class OneCardPoker(ExtensiveGame):
     """ This is the game described on 'http://www.cs.cmu.edu/~ggordon/poker/'.
@@ -108,21 +109,55 @@ class OneCardPoker(ExtensiveGame):
         return game_tree, info_sets_1, info_sets_2
 
 if __name__ == "__main__":
-    game, info_sets_1, info_sets_2 = OneCardPoker.create_game(3)
-    game.print_tree(only_leaves=True)
+    game, info_sets_1, info_sets_2 = OneCardPoker.create_game(9)
+    #game.print_tree(only_leaves=True)
 
-    # Join the two info set dictionaries
-    info_set_ids = info_sets_1.copy()
+    # Join the two info set dictionaries. The keys are nodes in the game tree
+    # belonging to player 1 or player 2, and the values are the identifier for
+    # the information set the node belongs to, from the perspective of the
+    # player to play in the node.
+    info_set_ids = {}
+    for k, v in info_sets_1.items():
+        if k.player == 1:
+            info_set_ids[k] = v
     for k, v in info_sets_2.items():
         if k.player == 2:
             info_set_ids[k] = v
 
+    print("We compute a random strategy for player 2")
     strategy_2 = random_strategy(game, 2)
     print(strategy_2)
-    exploitability_2 = best_response(game, strategy_2, 1, info_set_ids)
-    print(exploitability_2)
+    exploitability_2, br_against_2 = best_response(game, strategy_2, 1, info_set_ids)
+    print("The best response against this random strategy has value: {}".format(exploitability_2))
+    print("The best response strategy is")
+    print(br_against_2)
+    n = 1000
+    results = game.expected_value(br_against_2, strategy_2, info_set_ids, n)
+    print("We now run {} games of this strategy against the best response, and \
+    find the mean value for player 1 is {} with standard error {}".format(n,
+    np.mean(results), np.std(results) / np.sqrt(n)))
+    print(np.mean(results), np.std(results) / np.sqrt(n))
+
+    print("Now consider the strategy where player 2 always folds.")
+    strategy_2_0 = always_fold(game, 2)
+    exploitability_2_0, br_against_2_0 = best_response(game, strategy_2_0, 1,
+    info_set_ids)
+    print("The best response against this strategy has value: \
+    {}".format(exploitability_2_0))
+    print("The best response strategy is")
+    print(br_against_2_0)
+    results = game.expected_value(br_against_2_0, strategy_2_0, info_set_ids, n)
+    print("We now run {} games of this strategy against the best response, and \
+    find the mean value for player 1 is {} with standard error {}".format(n,
+    np.mean(results), np.std(results) / np.sqrt(n)))
+    print(np.mean(results), np.std(results) / np.sqrt(n))
     
-    strategy_1 = random_strategy(game, 1)
-    print(strategy_1)
-    exploitability_1 = best_response(game, strategy_1, 2, info_set_ids)
-    print(exploitability_1)
+    # We can also compute strategies from the other position.
+    #strategy_1 = random_strategy(game, 1)
+    #print(strategy_1)
+    #exploitability_1 = best_response(game, strategy_1, 2, info_set_ids)
+    #print(exploitability_1)
+
+    #n = 10000
+    #results = game.expected_value(strategy_1, strategy_2, info_set_ids, n)
+    #print(np.mean(results), np.std(results) / np.sqrt(n))
