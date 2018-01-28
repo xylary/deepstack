@@ -152,15 +152,15 @@ if __name__ == "__main__":
     np.mean(results), np.std(results) / np.sqrt(n)))
     print(np.mean(results), np.std(results) / np.sqrt(n))
 
-    print("Now consider the strategy where player 2 always bets.")
-    strategy_2_1 = constant_action(game, 2, 1)
-    exploitability_2_1, br_against_2_1 = best_response(game, strategy_2_1, 1,
+    print("Now consider the strategy where player 1 always bets.")
+    strategy_1_1 = constant_action(game, 1, 1)
+    exploitability_1_1, br_against_1_1 = best_response(game, strategy_1_1, 2,
     info_set_ids)
     print("The best response against this strategy has value: \
-    {}".format(exploitability_2_1))
+    {}".format(exploitability_1_1))
     print("The best response strategy is")
-    print(br_against_2_1)
-    results = game.expected_value(br_against_2_1, strategy_2_1, info_set_ids, n)
+    print(br_against_1_1)
+    results = game.expected_value(strategy_1_1, br_against_1_1, info_set_ids, n)
     print("We now run {} games of this strategy against the best response, and \
     find the mean value for player 1 is {} with standard error {}".format(n,
     np.mean(results), np.std(results) / np.sqrt(n)))

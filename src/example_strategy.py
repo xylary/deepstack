@@ -52,8 +52,12 @@ def constant_action(game, player, action):
         # Only need to add to the strategy for nodes whose information set has
         # not been included already.
         if not identifier in strategy:
-            # Sample actions uniformly at random. Can change this later.
+            # Play the action specified. If it's not available, play uniformly
+            # over all actions.
             strategy[identifier] = {a: 0.0 for a in actions}
-            strategy[identifier][action] = 1.0
+            if action in actions:
+                strategy[identifier][action] = 1.0
+            else:
+                strategy[identifier] = {a: 1.0 / len(actions) for a in actions}
 
     return strategy

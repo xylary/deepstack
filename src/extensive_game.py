@@ -114,6 +114,9 @@ class ExtensiveGame:
                 actions = [a for a in actions]
                 probs = [p for p in probs]
 
+                # Make sure the probabilities sum to 1
+                assert abs(1.0 - sum(probs)) < 1e-5
+
                 # Sample an action from the probability distribution.
                 action = np.random.choice(np.array(actions), p=np.array(probs))
 
