@@ -3,53 +3,43 @@ import numpy as np
 from leduc import Leduc
 from cfr import cfr
 from cfr_game import CFRGame
-from example_strategy import constant_action
-from best_response import best_response
+from example_strategy import constant_action, random_strategy, uniformly_random_strategy
+from best_response import best_response, compute_exploitability
 
 if __name__ == "__main__":
     game = Leduc.create_game(3)
     #game.print_tree(only_leaves=True)
 
+    print("Consider the strategy that always folds")
+    strategy_folds = constant_action(game, 1, 0)
+    strategy_folds.update(constant_action(game, 2, 0))
+    exploitability_folds = compute_exploitability(game, strategy_folds)
+    print("Exploitability of always folding: {}".format(exploitability_folds))
+
+    print("Consider the strategy that always calls")
+    strategy_calls = constant_action(game, 1, 1)
+    strategy_calls.update(constant_action(game, 2, 1))
+    exploitability_calls = compute_exploitability(game, strategy_calls)
+    print("Exploitability of always calling: {}".format(exploitability_calls))
+
+    print("Consider the strategy that always raises")
+    strategy_raises = constant_action(game, 1, 2)
+    strategy_raises.update(constant_action(game, 2, 2))
+    exploitability_raises = compute_exploitability(game, strategy_raises)
+    print("Exploitability of always raising: {}".format(exploitability_raises))
+
+    print("Consider a randomly chosen strategy")
+    strategy_random = random_strategy(game, 1)
+    strategy_random.update(random_strategy(game, 2))
+    exploitability_random = compute_exploitability(game, strategy_random)
+    print("Exploitability of the random strategy: {}".format(exploitability_random))
+
+    print("Consider a uniformly random strategy")
+    strategy_uniformly_random = uniformly_random_strategy(game, 1)
+    strategy_uniformly_random.update(uniformly_random_strategy(game, 2))
+    exploitability_uniformly_random = compute_exploitability(game, strategy_uniformly_random)
+    print("Exploitability of the uniformly random strategy: {}".format(exploitability_uniformly_random))
+
     # Use CFR on Leduc
+    print("Now running CFR")
     cfr(CFRGame(game))
-    
-
-    n = 10000
-#    print("We compute a random strategy for player 2")
-#    strategy_2 = random_strategy(game, 2)
-#    #print(strategy_2)
-#    exploitability_2, br_against_2 = best_response(game, strategy_2, 1)
-#    print("The best response against this random strategy has value: {}".format(exploitability_2))
-#    #print("The best response strategy is")
-#    #print(br_against_2)
-
-#    results = game.expected_value(br_against_2, strategy_2, n)
-#    print("We now run {} games of this strategy against the best response, and \
-#    find the mean value for player 1 is {} with standard error {}".format(n,
-#    np.mean(results), np.std(results) / np.sqrt(n)))
-
-
-    print("Now consider the strategy where player 2 always folds.")
-    strategy_2_0 = constant_action(game, 2, 0)
-    print(strategy_2_0)
-    exploitability_2_0, br_against_2_0 = best_response(game, strategy_2_0, 1)
-    print("The best response against this strategy has value: \
-    {}".format(exploitability_2_0))
-    #print("The best response strategy is")
-    #print(br_against_2_0)
-    results = game.expected_value(br_against_2_0, strategy_2_0, n)
-    print("We now run {} games of this strategy against the best response, and \
-    find the mean value for player 1 is {} with standard error {}".format(n,
-    np.mean(results), np.std(results) / np.sqrt(n)))
-
-    print("Now consider the strategy where player 1 always folds.")
-    strategy_1_0 = constant_action(game, 1, 0)
-    exploitability_1_0, br_against_1_0 = best_response(game, strategy_1_0, 2)
-    print("The best response against this strategy has value: \
-    {}".format(exploitability_1_0))
-    #print("The best response strategy is")
-    #print(br_against_1_0)
-    results = game.expected_value(strategy_1_0, br_against_1_0, n)
-    print("We now run {} games of this strategy against the best response, and \
-    find the mean value for player 1 is {} with standard error {}".format(n,
-    np.mean(results), np.std(results) / np.sqrt(n)))

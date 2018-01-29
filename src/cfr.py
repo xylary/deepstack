@@ -168,5 +168,4 @@ def evaluate_strategies(game, strategy, num_iters=500):
     distributions over actions, sample a number of games to approximate the expected value
     of player 1.
     """
-    print("Strategy: {}".format(strategy))
     return game.game.expected_value(strategy, strategy, num_iters)
