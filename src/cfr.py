@@ -51,21 +51,8 @@ def cfr(game, num_iters=10000):
 
         #print("Values {}".format(values))
         if t % 1000 == 0:
-            all_payoffs = evaluate_strategies(game, strategy_t, num_iters=5000)
-            print("t: {}".format(t))
-            print("Average value 1: {}, std: {}".format(np.mean(all_payoffs), np.std(all_payoffs) / np.sqrt(len(all_payoffs))))
-
             # We also compute the best response to the current strategy.
             complete_strategy = game.game.complete_strategy_randomly(strategy_t)
-            exploitability_1, br_against_1 = best_response(game.game,
-            complete_strategy, 2)
-            print("The best response against this strategy has value: \
-            {}".format(exploitability_1))
-            exploitability_2, br_against_2 = best_response(game.game,
-            complete_strategy, 1)
-            print("The best response against this strategy has value: \
-            {}".format(exploitability_2))
-
             exploitability = compute_exploitability(game.game,
             complete_strategy)
             print("Exploitability: {}".format(exploitability))

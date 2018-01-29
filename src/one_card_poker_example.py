@@ -1,13 +1,13 @@
 # coding: utf-8
 import numpy as np
-from leduc import Leduc
+from one_card_poker import OneCardPoker
 from cfr import cfr
 from cfr_game import CFRGame
 from example_strategy import constant_action, random_strategy, uniformly_random_strategy
 from best_response import best_response, compute_exploitability
 
 if __name__ == "__main__":
-    game = Leduc.create_game(3)
+    game = OneCardPoker.create_game(3)
     #game.print_tree(only_leaves=True)
 
     # The strategy that always folds.
