@@ -58,6 +58,7 @@ def constant_action(game, player, action):
             if action in actions:
                 strategy[identifier][action] = 1.0
             else:
+                #strategy[identifier][1] = 1.0
                 strategy[identifier] = {a: 1.0 / len(actions) for a in actions}
 
     return strategy

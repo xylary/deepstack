@@ -30,7 +30,11 @@ class ExtensiveGameNode:
 class ExtensiveGame:
     
     def __init__(self, root):
+        # set the root node.
         self.root = root
+
+        # Also build the information set ids.
+        self.info_set_ids = self.build_info_set_ids()
 
     @staticmethod
     def print_tree_recursive(node, action_list, only_leaves):
@@ -101,34 +105,39 @@ class ExtensiveGame:
                 info_set_ids[k] = v
         return info_set_ids
 
-    def expected_value(self, strategy_1, strategy_2, info_set_ids, num_iters):
+    def expected_value(self, strategy_1, strategy_2, num_iters):
         """ Given a strategy for player 1 and a strategy for player 2, compute
         the expected value for player 1.
         - strategy_1: should be a dictionary from information set identifiers
           for player 1 for all of player 1's nodes to probabilities over actions
               available in that information set.
         - strategy_2: same for player 2.
+        Returns the result of each game of strategy_1 versus strategy_2.
         """
         results = []
         for t in range(num_iters):
             node = self.root
             while node.player != -1:
+                # Default to playing randomly.
+                actions = [a for a in node.children.keys()]
+                probs = [1.0 / float(len(actions)) for a in actions]
+
                 # If it's a chance node, then sample an outcome.
                 if node.player == 0:
-                    actions = node.children.keys()
                     probs = node.chance_probs.values()
                 elif node.player == 1:
                     # It's player 1's node, so use their strategy to make a
                     # decision.
-                    actions = strategy_1[info_set_ids[node]].keys()
-                    probs = strategy_1[info_set_ids[node]].values()
+                    info_set = self.info_set_ids[node]
+                    if info_set in strategy_1:
+                        probs = strategy_1[info_set].values()
                 elif node.player == 2:
                     # It's player 2's node, so use their strategy to make a
                     # decision.
-                    actions = strategy_2[info_set_ids[node]].keys()
-                    probs = strategy_2[info_set_ids[node]].values()
+                    info_set = self.info_set_ids[node]
+                    if info_set in strategy_2:
+                        probs = strategy_2[info_set].values()
 
-                actions = [a for a in actions]
                 probs = [p for p in probs]
 
                 # Make sure the probabilities sum to 1
@@ -145,3 +154,19 @@ class ExtensiveGame:
         
         return results
 
+    def complete_strategy_randomly(self, strategy):
+        """ Given a partial strategy, i.e. a dictionary from a subset of the
+        info_set_ids to probabilities over actions in those information sets,
+        complete the dictionary by assigning uniform probability distributions
+        to the missing information sets.
+        """
+        new_strategy = strategy.copy()
+        num_missing = 0
+        for node, info_set_id in self.info_set_ids.items():
+            if not info_set_id in new_strategy:
+                actions = node.children.keys()
+                new_strategy[info_set_id] = {a: 1.0 / float(len(actions)) for a
+                in actions}
+                num_missing += 1
+        print("Completed strategy at {} information sets.".format(num_missing))
+        return new_strategy

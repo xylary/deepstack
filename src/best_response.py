@@ -2,7 +2,7 @@
 # Computes a best response for a given strategy in a given game.
 import itertools
 
-def br(game, info_set, reach_probs, strategy, br_strategy, i, info_set_ids):
+def br(game, info_set, reach_probs, strategy, br_strategy, i):
     """ - info_set is a list of nodes, all in the same information set for player
     i.
     - reach_probs is a dictionary where each key is a node and the value is the
@@ -45,7 +45,7 @@ def br(game, info_set, reach_probs, strategy, br_strategy, i, info_set_ids):
                 if node.player == 0:
                     new_prob = node.chance_probs[action]
                 else:
-                    new_prob = strategy[info_set_ids[node]][action]
+                    new_prob = strategy[game.info_set_ids[node]][action]
                 new_reach_probs[child] = reach_probs[node] * new_prob
 
         # Convert the information sets into a list, partitioned by actions.
@@ -64,7 +64,7 @@ def br(game, info_set, reach_probs, strategy, br_strategy, i, info_set_ids):
         # return the sum
         br_sum = 0.0
         for I in info_sets:
-            br_sum += br(game, I, new_reach_probs, strategy, br_strategy, i, info_set_ids)
+            br_sum += br(game, I, new_reach_probs, strategy, br_strategy, i)
         return br_sum
     else:
         # The info set belongs to i. Player i chooses the action with maximum
@@ -77,11 +77,11 @@ def br(game, info_set, reach_probs, strategy, br_strategy, i, info_set_ids):
             # set.
             next_reach_probs = {node.children[action] : reach_probs[node] for node in info_set}
             brs.append(br(game, next_info_set, next_reach_probs, strategy,
-            br_strategy, i, info_set_ids))
+            br_strategy, i))
             actions.append(action)
 
         # Player i chooses action with maximum value.
-        info_set_id = info_set_ids[info_set[0]]
+        info_set_id = game.info_set_ids[info_set[0]]
         br_strategy[info_set_id] = {a: 0.0 for a in info_set[0].children}
 
         # Get the maximum br and its corresponding action.
@@ -91,7 +91,7 @@ def br(game, info_set, reach_probs, strategy, br_strategy, i, info_set_ids):
         br_strategy[info_set_id][best_action] = 1.0
         return best_br
 
-def best_response(game, strategy, i, info_set_ids):
+def best_response(game, strategy, i):
     """ Given a game (defined by an ExtensiveGame) and a strategy (defined by a
     dictionary from nodes in the game tree to probabilities over actions),
     returns the best response for player i against the other player.
@@ -99,6 +99,16 @@ def best_response(game, strategy, i, info_set_ids):
       probabilities over their actions.
     """
     br_strategy = {}
-    br_value = br(game, [game.root], {game.root: 1.0}, strategy, br_strategy, i, info_set_ids)
+    br_value = br(game, [game.root], {game.root: 1.0}, strategy, br_strategy, i)
     return br_value, br_strategy
     
+def compute_exploitability(game, strategy):
+    """ Computes the exploitability of a given strategy. The strategy must
+    implement both player 1 and player 2 information sets.
+    """
+    # First compute the best response against the strategy when the strategy
+    # plays as player 1. Then compute the best response against the strategy
+    # when it plays as player 2.
+    exploitability_1, br_against_1 = best_response(game, strategy, 1)
+    exploitability_2, br_against_2 = best_response(game, strategy, 2)
+    return exploitability_1 + exploitability_2
