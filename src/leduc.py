@@ -220,25 +220,12 @@ class Leduc(ExtensiveGame):
         twice.
         """
         game_tree = Leduc.create_leduc_tree([], 2 * [a for a in range(10, n_cards+10)])
-        info_sets_1 = game_tree.build_information_sets(1)
-        info_sets_2 = game_tree.build_information_sets(2)
-        return game_tree, info_sets_1, info_sets_2
+        return game_tree
 
 if __name__ == "__main__":
-    game, info_sets_1, info_sets_2 = Leduc.create_game(3)
+    game = Leduc.create_game(3)
+    info_set_ids = game.build_info_set_ids()
     #game.print_tree(only_leaves=True)
-
-    # Join the two info set dictionaries. The keys are nodes in the game tree
-    # belonging to player 1 or player 2, and the values are the identifier for
-    # the information set the node belongs to, from the perspective of the
-    # player to play in the node.
-    info_set_ids = {}
-    for k, v in info_sets_1.items():
-        if k.player == 1:
-            info_set_ids[k] = v
-    for k, v in info_sets_2.items():
-        if k.player == 2:
-            info_set_ids[k] = v
 
     n = 10000
 #    print("We compute a random strategy for player 2")

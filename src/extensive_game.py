@@ -84,6 +84,23 @@ class ExtensiveGame:
 
         return info_set
 
+    def build_info_set_ids(self):
+        """ Join the two info set dictionaries. The keys are nodes in the game
+        tree belonging to player 1 or player 2, and the values are the
+        identifier for the information set the node belongs to, from the
+        perspective of the player to play in the node.
+        """
+        info_sets_1 = self.build_information_sets(1)
+        info_sets_2 = self.build_information_sets(2)
+        info_set_ids = {}
+        for k, v in info_sets_1.items():
+            if k.player == 1:
+                info_set_ids[k] = v
+        for k, v in info_sets_2.items():
+            if k.player == 2:
+                info_set_ids[k] = v
+        return info_set_ids
+
     def expected_value(self, strategy_1, strategy_2, info_set_ids, num_iters):
         """ Given a strategy for player 1 and a strategy for player 2, compute
         the expected value for player 1.
