@@ -21,7 +21,7 @@ cards = ('k','k','q','q','j','j') #I run in to errors if I have multiplicities i
 class LeducNode(ExtensiveGameNode):
     """
     """
-    def __init__(self,action_list,bets,raise_tuple):
+    def __init__(self,action_list,bets,raise_tuple,starting_player,current_player):
         #history of actions as a tuple
         self.action_list=action_list
         # Which player is to play in the node. Use -1 for terminal, 0 for
@@ -36,7 +36,7 @@ class LeducNode(ExtensiveGameNode):
         
 
         # Who can see the actions in this node.
-        self.hidden_from = [self.player%2+1]#automatically hidden from other player
+        self.hidden_from = []#automatically hidden from other player
 
       
         # for terminal nodes.
@@ -54,7 +54,7 @@ class LeducNode(ExtensiveGameNode):
         #encoded raise amount, do we need to have this in class data? Since it is uniform, i.e. never changes...
         self.raise_tuple=raise_tuple 
         #amount of money each player has
-       
+        self.starting_player=starting_player
     
     def compute_round(self):#takes action_list and searches for double calls, round = number of double calls
         
@@ -103,19 +103,19 @@ class LeducNode(ExtensiveGameNode):
             self.child_bets = {1:1,2:1}#both players pay ante
             for card in cards:
                 self.children[card]=LeducNode(action_list=self.action_list + (card,),bets=self.child_bets,raise_tuple=self.raise_tuple)#not sure how to add probability to LeducNode that is child
+                self.children[card].hidden_from=[self.player]#hides cards from current player
         elif len(self.action_list)==1:#assign card to 2nd player           
             cards_played= (x for x in self.action_list if x in cards)
             remaining_cards=[x for x in cards if x not in cards_played]
-            print cards_played
-            print remaining_cards
             for card in remaining_cards:
                 self.children[card]=LeducNode(self.action_list +(card,),bets=self.bets,raise_tuple=self.raise_tuple)
+                self.children[card].hidden_from=[self.player]
         elif self.compute_round()>min(len(self.raise_tuple),len(cards)-2): #is terminal because we have reached end of game
             self.children={}#there are no children as game is finished
         elif self.action_list[-1]== ('f'): #is terminal because the previous player folded
             self.children={}#there are no children as game is finished
         elif self.action_list[-2:]== ('c','c') or self.action_list[-2:]==('b','c'):#is chance node - we can ignore terminal round as this is covered in above
-            if self.compute_round()<=len(self.raise_tuple):#this will be the flop
+            if self.compute_round()<len(self.raise_tuple):#this will be the flop
                 cards_played= (x for x in self.action_list if x in cards)
                 remaining_cards=[x for x in cards if x not in cards_played]
                 for card in remaining_cards:
@@ -145,6 +145,7 @@ class LeducNode(ExtensiveGameNode):
             else:
                 print(node.action_list)
                 print(node.bets)
+                print(node.hidden_from)
             
             for label,child in node.children.items():
                 LeducNode.print_tree_recursive(child,depth-1,only_leafs)
@@ -152,12 +153,12 @@ class LeducNode(ExtensiveGameNode):
             
 root=LeducNode(action_list=(),bets={},raise_tuple=(2,4))
 
-print root
+
 
 #root.print_tree_recursive(root,20)
 
-longroot=LeducNode(action_list=('k','k'),bets={1:1,2:1},raise_tuple=(2,4,6))
+longroot=LeducNode(action_list=('k','k',),bets={1:2,2:1},raise_tuple=(2,4,6))
 
-longroot.print_tree_recursive(longroot,4,only_leafs=False)
+longroot.print_tree_recursive(longroot,depth=4,only_leafs=False)
 
 
