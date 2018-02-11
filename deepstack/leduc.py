@@ -1,13 +1,15 @@
 # coding: utf-8
-# This implements Leduc Hold'em.
+# This implements Leduc Hold'em.
 
-from extensive_game import ExtensiveGame, ExtensiveGameNode
-from example_strategy import random_strategy, constant_action
-from best_response import best_response
 import numpy as np
 
+from deepstack.extensive_game import ExtensiveGame, ExtensiveGameNode
+from deepstack.example_strategy import random_strategy, constant_action
+from deepstack.best_response import best_response
+
+
 class Leduc(ExtensiveGame):
-    """ 
+    """
     """
     @staticmethod
     def compute_bets(action_list):
@@ -26,7 +28,7 @@ class Leduc(ExtensiveGame):
         # Player 1 starts round 1 and player 2 starts round 2.
         player = 1
         round_number = 1
-        
+
         # The raise amount is 2 in the first round and 4 in the second round.
         raise_amount = 2
         for action in action_list:
@@ -61,7 +63,7 @@ class Leduc(ExtensiveGame):
         bets = Leduc.compute_bets(action_list)
         hole_cards = {1: action_list[0], 2: action_list[1]}
         board = [a for a in action_list[2:] if a >= 10][0]
-        
+
         if hole_cards[1] == board:
             winner = 1
         elif hole_cards[2] == board:
@@ -90,26 +92,28 @@ class Leduc(ExtensiveGame):
             root.hidden_from = [2]
             for card in cards:
                 # Create a game tree below this node.
-                if not card in root.children:
+                if card not in root.children:
                     remaining_cards = cards.copy()
                     remaining_cards.remove(card)
-                    root.children[card] = Leduc.create_leduc_tree(action_list + [card], remaining_cards)
+                    root.children[card] = Leduc.create_leduc_tree(
+                        action_list + [card], remaining_cards)
                     root.chance_probs[card] = 1.0 / float(len(cards))
                 else:
                     root.chance_probs[card] += 1.0 / float(len(cards))
             return ExtensiveGame(root)
         elif len(action_list) == 1:
-            # We are at a chance node for player 2, so we create this chance
+            # We are at a chance node for player 2, so we create this chance
             # node, including its children.
             node = ExtensiveGameNode(0)
             # This node is hidden from player 1
             node.hidden_from = [1]
             for card in cards:
                 # Otherwise create a child node below
-                if not card in node.children:
+                if card not in node.children:
                     remaining_cards = cards.copy()
                     remaining_cards.remove(card)
-                    node.children[card] = Leduc.create_leduc_tree(action_list + [card], remaining_cards)
+                    node.children[card] = Leduc.create_leduc_tree(
+                        action_list + [card], remaining_cards)
                     node.chance_probs[card] = 1.0 / float(len(cards))
                 else:
                     node.chance_probs[card] += 1.0 / float(len(cards))
@@ -136,7 +140,7 @@ class Leduc(ExtensiveGame):
         # Should now have a list of betting rounds in 'betting_rounds', with the
         # second one potentially being incomplete. We also potentially have
         # board cards in 'board_cards'.
-        
+
         # If there is only one betting round in rounds, then we are still in
         # the first round. Otherwise we are in the second.
         assert len(betting_rounds) <= 2
@@ -145,8 +149,8 @@ class Leduc(ExtensiveGame):
             betting_round = []
         else:
             betting_round = betting_rounds[-1]
-        if betting_round == [1,1] or betting_round[-2:] == [2,1] or \
-            betting_round[-2:] == [2,0]:
+        if betting_round == [1, 1] or betting_round[-2:] == [2, 1] or \
+           betting_round[-2:] == [2, 0]:
             # The round is terminal. The next node should be a chance
             # node, but we may have already created it. We can check
             # this by the number of cards on the board.
@@ -165,10 +169,11 @@ class Leduc(ExtensiveGame):
                     # We need to create the chance node for the board.
                     node = ExtensiveGameNode(0)
                     for card in cards:
-                        if not card in node.children:
+                        if card not in node.children:
                             remaining_cards = cards.copy()
                             remaining_cards.remove(card)
-                            node.children[card] = Leduc.create_leduc_tree(action_list + [card], remaining_cards)
+                            node.children[card] = Leduc.create_leduc_tree(
+                                action_list + [card], remaining_cards)
                             node.chance_probs[card] = 1.0 / float(len(cards))
                         else:
                             node.chance_probs[card] += 1.0 / float(len(cards))
@@ -184,30 +189,30 @@ class Leduc(ExtensiveGame):
             # is: even number of actions means player 1, else player 2.
             player = 1 if len(betting_round) % 2 == 0 else 2
             node = ExtensiveGameNode(player)
-            # The available actions are: 
+            # The available actions are:
             if betting_round == []:
-                available_actions = [1,2]
+                available_actions = [1, 2]
             elif betting_round == [2]:
-                available_actions = [0,1,2]
-            elif betting_round == [2,2]:
-                available_actions = [0,1,2]
-            elif betting_round == [2,2,2]:
-                available_actions = [0,1,2]
-            elif betting_round == [2,2,2,2]:
-                available_actions = [0,1]
+                available_actions = [0, 1, 2]
+            elif betting_round == [2, 2]:
+                available_actions = [0, 1, 2]
+            elif betting_round == [2, 2, 2]:
+                available_actions = [0, 1, 2]
+            elif betting_round == [2, 2, 2, 2]:
+                available_actions = [0, 1]
             elif betting_round == [1]:
-                available_actions = [1,2]
-            elif betting_round == [1,2]:
-                available_actions = [0,1,2]
-            elif betting_round == [1,2]:
-                available_actions = [0,1,2]
-            elif betting_round == [1,2,2]:
-                available_actions = [0,1,2]
-            elif betting_round == [1,2,2,2]:
-                available_actions = [0,1,2]
-            elif betting_round == [1,2,2,2,2]:
-                available_actions = [0,1]
-                
+                available_actions = [1, 2]
+            elif betting_round == [1, 2]:
+                available_actions = [0, 1, 2]
+            elif betting_round == [1, 2]:
+                available_actions = [0, 1, 2]
+            elif betting_round == [1, 2, 2]:
+                available_actions = [0, 1, 2]
+            elif betting_round == [1, 2, 2, 2]:
+                available_actions = [0, 1, 2]
+            elif betting_round == [1, 2, 2, 2, 2]:
+                available_actions = [0, 1]
+
             # Now create the child node for each available action:
             for action in available_actions:
                 node.children[action] = Leduc.create_leduc_tree(action_list + [action], cards)

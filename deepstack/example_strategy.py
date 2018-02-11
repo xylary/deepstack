@@ -1,11 +1,13 @@
-# coding: utf-8
+# coding: utf-8
 import numpy as np
+
 
 def random_distribution(n_items):
     """ Returns a random probability distribution over n items. Formally, we
     choose a point uniformly at random from the n-1 simplex.
     """
     return np.random.dirichlet([1.0 for i in range(n_items)])
+
 
 def uniformly_random_strategy(game, player):
     """ Returns a dictionary from information set identifiers to probabilities
@@ -26,11 +28,12 @@ def uniformly_random_strategy(game, player):
         actions = node.children.keys()
         # Only need to add to the strategy for nodes whose information set has
         # not been included already.
-        if not identifier in strategy:
+        if identifier not in strategy:
             # Sample actions uniformly at random. Can change this later.
             strategy[identifier] = {a: 1.0 / float(len(actions)) for a in actions}
 
     return strategy
+
 
 def random_strategy(game, player):
     """ We return a dictionary from information set identifiers to probabilities
@@ -50,12 +53,13 @@ def random_strategy(game, player):
         actions = node.children.keys()
         # Only need to add to the strategy for nodes whose information set has
         # not been included already.
-        if not identifier in strategy:
+        if identifier not in strategy:
             # Sample actions uniformly at random. Can change this later.
             probs = random_distribution(len(actions))
             strategy[identifier] = {a: p for a, p in zip(actions, probs)}
 
     return strategy
+
 
 def constant_action(game, player, action):
     """ This strategy always plays action 'action'. We return a dictionary from
@@ -76,14 +80,13 @@ def constant_action(game, player, action):
         actions = node.children.keys()
         # Only need to add to the strategy for nodes whose information set has
         # not been included already.
-        if not identifier in strategy:
+        if identifier not in strategy:
             # Play the action specified. If it's not available, play uniformly
             # over all actions.
             strategy[identifier] = {a: 0.0 for a in actions}
             if action in actions:
                 strategy[identifier][action] = 1.0
             else:
-                #strategy[identifier][1] = 1.0
                 strategy[identifier] = {a: 1.0 / len(actions) for a in actions}
 
     return strategy

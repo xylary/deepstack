@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 class CFRGame():
     """ A CFRGame implements a few extra functions to make CFR work.
     """
@@ -37,7 +38,7 @@ class CFRGame():
         """
         assert node.player == 0
         actions = [a for a in node.chance_probs]
-        probs = [v for a,v in node.chance_probs.items()]
+        probs = [v for a, v in node.chance_probs.items()]
         return np.random.choice(actions, p=probs)
 
     def information_set(self, node):
@@ -47,4 +48,3 @@ class CFRGame():
         to the player who is to play following the action sequence.
         """
         return self.game.info_set_ids[node]
-

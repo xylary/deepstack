@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 class ExtensiveGameNode:
     """ A class for a game node in an extensive form game.
     """
@@ -18,7 +19,7 @@ class ExtensiveGameNode:
         # Who can see the actions in this node.
         self.hidden_from = []
 
-        # Utility of the node to each player (as a dictionary). Only relevant
+        # Utility of the node to each player (as a dictionary). Only relevant
         # for terminal nodes.
         self.utility = {}
 
@@ -27,8 +28,9 @@ class ExtensiveGameNode:
         # this action.
         self.chance_probs = {}
 
+
 class ExtensiveGame:
-    
+
     def __init__(self, root):
         # set the root node.
         self.root = root
@@ -45,15 +47,15 @@ class ExtensiveGame:
         elif not only_leaves:
             print(action_list)
         for action, child in node.children.items():
-            ExtensiveGame.print_tree_recursive(child, action_list + [action],
-            only_leaves)
+            ExtensiveGame.print_tree_recursive(
+                child, action_list + [action], only_leaves)
 
     def print_tree(self, only_leaves=False):
         """ Prints out a list of all nodes in the tree by the list of actions
         needed to get to each node from the root.
         """
         ExtensiveGame.print_tree_recursive(self.root, [], only_leaves)
-    
+
     def build_information_sets(self, player):
         """ Returns a dictionary from nodes to a unique identifier for the
         information set containing the node. This is all for the given player.
@@ -64,7 +66,7 @@ class ExtensiveGame:
         # nodes to explore.
         node_stack = [self.root]
         visible_actions_stack = [[]]
-        
+
         # First build the information sets for player 1.
         while len(node_stack) > 0:
             node = node_stack.pop()
@@ -75,7 +77,7 @@ class ExtensiveGame:
             # tuple instead of a list so that it is hashable if we want later
             # on.
             info_set[node] = tuple(visible_actions)
-            
+
             for action, child in node.children.items():
                 # Add all the children to the node stack and also the visible
                 # actions to the action stack. If an action is hidden from the
@@ -151,7 +153,7 @@ class ExtensiveGame:
 
             # The node is terminal. Add the utility for player 1 to the results.
             results.append(node.utility[1])
-        
+
         return results
 
     def complete_strategy_randomly(self, strategy):
@@ -163,10 +165,10 @@ class ExtensiveGame:
         new_strategy = strategy.copy()
         num_missing = 0
         for node, info_set_id in self.info_set_ids.items():
-            if not info_set_id in new_strategy:
+            if info_set_id not in new_strategy:
                 actions = node.children.keys()
-                new_strategy[info_set_id] = {a: 1.0 / float(len(actions)) for a
-                in actions}
+                new_strategy[info_set_id] = {
+                    a: 1.0 / float(len(actions)) for a in actions}
                 num_missing += 1
         if num_missing > 0:
             print("Completed strategy at {} information sets.".format(num_missing))

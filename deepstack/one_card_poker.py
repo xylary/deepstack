@@ -1,7 +1,9 @@
-from extensive_game import ExtensiveGame, ExtensiveGameNode
-from example_strategy import random_strategy, constant_action
-from best_response import best_response
 import numpy as np
+
+from deepstack.extensive_game import ExtensiveGame, ExtensiveGameNode
+from deepstack.example_strategy import random_strategy, constant_action
+from deepstack.best_response import best_response
+
 
 class OneCardPoker(ExtensiveGame):
     """ This is the game described on 'http://www.cs.cmu.edu/~ggordon/poker/'.
@@ -22,7 +24,7 @@ class OneCardPoker(ExtensiveGame):
         # player 1) and the odd actions (for player 2).
         bets = {1: 1.0, 2: 1.0}
         for i, action in enumerate(betting_actions):
-            bets[(i%2)+1] += action
+            bets[(i % 2)+1] += action
         winner = 1 if hole_cards[1] > hole_cards[2] else 2
         loser = 2 if hole_cards[1] > hole_cards[2] else 1
         # The winner wins the amount the loser bet, and the loser loses this
@@ -47,7 +49,7 @@ class OneCardPoker(ExtensiveGame):
                 root.chance_probs[card] = 1.0 / len(cards)
             return ExtensiveGame(root)
         elif len(action_list) == 1:
-            # We are at a chance node for player 2, so we create this chance
+            # We are at a chance node for player 2, so we create this chance
             # node, including its children.
             node = ExtensiveGameNode(0)
             # This node is hidden from player 1
@@ -57,7 +59,8 @@ class OneCardPoker(ExtensiveGame):
                 if card == action_list[0]:
                     continue
                 # Otherwise create a child node below
-                node.children[card] = OneCardPoker.create_one_card_tree(action_list + [card], cards)
+                node.children[card] = OneCardPoker.create_one_card_tree(
+                    action_list + [card], cards)
                 node.chance_probs[card] = 1.0 / (len(cards) - 1.0)
             return node
         elif len(action_list) == 2:
@@ -79,8 +82,8 @@ class OneCardPoker(ExtensiveGame):
                 # bet of 1. Thus this node is terminal.
                 node = ExtensiveGameNode(-1)
                 hole_cards = {1: action_list[0], 2: action_list[1]}
-                node.utility = OneCardPoker.compute_utility(action_list[2:],
-                hole_cards)
+                node.utility = OneCardPoker.compute_utility(
+                    action_list[2:], hole_cards)
                 return node
             else:
                 # The actions were [0,1], and so player 1 gets another chance to
@@ -93,8 +96,8 @@ class OneCardPoker(ExtensiveGame):
             # It's player 2's second turn (but this actually must be terminal).
             node = ExtensiveGameNode(-1)
             hole_cards = {1: action_list[0], 2: action_list[1]}
-            node.utility = OneCardPoker.compute_utility(action_list[2:],
-            hole_cards)
+            node.utility = OneCardPoker.compute_utility(
+                action_list[2:], hole_cards)
             return node
         assert False
 
