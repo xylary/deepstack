@@ -1,10 +1,11 @@
 # deepstack
 Implementation of DeepStack.
 
-Authors:
-Chris Nicholls [cgnicholls](https://github.com/cgnicholls)
+**Authors**
 
-Kieran Calvert [kjcalvert](https://github.com/kjcalvert).
+* Chris Nicholls ([https://github.com/cgnicholls](https://github.com/cgnicholls))
+* Kieran Calvert ([https://github.com/kjcalvert](https://github.com/kjcalvert))
 
-Notes:
+**Notes**
+
 See [https://www.deepstack.ai](https://www.deepstack.ai/) for the original website.
