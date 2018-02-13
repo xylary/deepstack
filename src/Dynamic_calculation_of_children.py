@@ -21,7 +21,7 @@ cards = ('k','k','q','q','j','j') #I run in to errors if I have multiplicities i
 class LeducNode(ExtensiveGameNode):
     """
     """
-    def __init__(self,action_list,bets,raise_tuple,starting_player,current_player):
+    def __init__(self,action_list,bets,raise_tuple):
         #history of actions as a tuple
         self.action_list=action_list
         # Which player is to play in the node. Use -1 for terminal, 0 for
@@ -40,7 +40,7 @@ class LeducNode(ExtensiveGameNode):
 
       
         # for terminal nodes.
-        self.utility = {}
+        self.utility = {} #{1:u(1),2,U(2)}
         
         #Dynamic calculation of bets - I am not sure if this needs to be done like this or instead the bets can be appended when children are made?
         self.bets= bets #from class Leduc 
@@ -151,6 +151,32 @@ class LeducNode(ExtensiveGameNode):
                 LeducNode.print_tree_recursive(child,depth-1,only_leafs)
             
             
+def LeducGame(ExtensiveGame):
+   
+    @staticmethod
+    def create_game(n_cards,depth):
+        cards = ('k','k','q','q','j','j')
+        root=LeducNode(action_list={},bets={},raise_tuple=(2,4))
+        leducGame.create_tree_recursive(root,20)
+        
+    @staticmethod
+    def create_tree_recursive(node,depth):
+        """ Prints out a list of all nodes in the tree rooted at 'node'.
+        """
+        if depth ==0:
+            return
+            #print'finished printing'
+        
+            node.compute_children()
+            
+                    
+        
+            
+            for label,child in node.children.items():
+                LeducGame.create_tree_recursive(child,depth-1)   
+    
+
+
 root=LeducNode(action_list=(),bets={},raise_tuple=(2,4))
 
 
