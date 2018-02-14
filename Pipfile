@@ -13,9 +13,9 @@ numpy = "*"
 
 [dev-packages]
 
-pytest = "*"
 pytest-pycodestyle = "*"
 "e1839a8" = {path = ".", editable = true}
+pytest = "*"
 
 
 [requires]

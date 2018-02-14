@@ -1,11 +1,11 @@
 import numpy as np
 
-from deepstack.extensive_game import ExtensiveGame, ExtensiveGameNode
-from deepstack.example_strategy import random_strategy, constant_action
-from deepstack.best_response import best_response
+from deepstack import extensive_game
+from deepstack import example_strategy
+from deepstack import best_response
 
 
-class OneCardPoker(ExtensiveGame):
+class OneCardPoker(extensive_game.ExtensiveGame):
     """ This is the game described on 'http://www.cs.cmu.edu/~ggordon/poker/'.
     Rules: each player is privately dealt one card from a deck of 'n_cards'
     cards (without replacement). Currently there is one card for each card
@@ -40,18 +40,18 @@ class OneCardPoker(ExtensiveGame):
         if len(action_list) == 0:
             # We are at the root of the tree, so we create a chance node for
             # player 1.
-            root = ExtensiveGameNode(0)
+            root = extensive_game.ExtensiveGameNode(0)
             # This node is hidden from player 2
             root.hidden_from = [2]
             for card in cards:
                 # Create a game tree below this node.
                 root.children[card] = OneCardPoker.create_one_card_tree([card], cards)
                 root.chance_probs[card] = 1.0 / len(cards)
-            return ExtensiveGame(root)
+            return extensive_game.ExtensiveGame(root)
         elif len(action_list) == 1:
             # We are at a chance node for player 2, so we create this chance
             # node, including its children.
-            node = ExtensiveGameNode(0)
+            node = extensive_game.ExtensiveGameNode(0)
             # This node is hidden from player 1
             node.hidden_from = [1]
             for card in cards:
@@ -65,13 +65,13 @@ class OneCardPoker(ExtensiveGame):
             return node
         elif len(action_list) == 2:
             # It's player 1's first turn.
-            node = ExtensiveGameNode(1)
+            node = extensive_game.ExtensiveGameNode(1)
             node.children[0] = OneCardPoker.create_one_card_tree(action_list + [0], cards)
             node.children[1] = OneCardPoker.create_one_card_tree(action_list + [1], cards)
             return node
         elif len(action_list) == 3:
             # It's player 2's first turn.
-            node = ExtensiveGameNode(2)
+            node = extensive_game.ExtensiveGameNode(2)
             node.children[0] = OneCardPoker.create_one_card_tree(action_list + [0], cards)
             node.children[1] = OneCardPoker.create_one_card_tree(action_list + [1], cards)
             return node
@@ -80,7 +80,7 @@ class OneCardPoker(ExtensiveGame):
             if action_list[3] == 0 or action_list[2] == action_list[3]:
                 # The second player folded, or called a bet of 0, or called a
                 # bet of 1. Thus this node is terminal.
-                node = ExtensiveGameNode(-1)
+                node = extensive_game.ExtensiveGameNode(-1)
                 hole_cards = {1: action_list[0], 2: action_list[1]}
                 node.utility = OneCardPoker.compute_utility(
                     action_list[2:], hole_cards)
@@ -88,13 +88,13 @@ class OneCardPoker(ExtensiveGame):
             else:
                 # The actions were [0,1], and so player 1 gets another chance to
                 # call or fold.
-                node = ExtensiveGameNode(1)
+                node = extensive_game.ExtensiveGameNode(1)
                 node.children[0] = OneCardPoker.create_one_card_tree(action_list + [0], cards)
                 node.children[1] = OneCardPoker.create_one_card_tree(action_list + [1], cards)
                 return node
         elif len(action_list) == 5:
             # It's player 2's second turn (but this actually must be terminal).
-            node = ExtensiveGameNode(-1)
+            node = extensive_game.ExtensiveGameNode(-1)
             hole_cards = {1: action_list[0], 2: action_list[1]}
             node.utility = OneCardPoker.compute_utility(
                 action_list[2:], hole_cards)

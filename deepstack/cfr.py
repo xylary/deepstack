@@ -4,7 +4,7 @@
 
 import numpy as np
 
-import deepstack.best_response
+from deepstack import best_response
 
 
 def cfr(game, num_iters=10000):
@@ -60,8 +60,8 @@ def cfr(game, num_iters=10000):
         if t % 1000 == 0:
             # We also compute the best response to the current strategy.
             complete_strategy = game.game.complete_strategy_randomly(strategy_t)
-            exploitability = compute_exploitability(game.game,
-                                                    complete_strategy)
+            exploitability = best_response.compute_exploitability(
+                game.game, complete_strategy)
             print("Exploitability: {}".format(exploitability))
 
     return average_strategy

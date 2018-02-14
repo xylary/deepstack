@@ -5,7 +5,7 @@ import numpy as np
 
 from deepstack.extensive_game import ExtensiveGame, ExtensiveGameNode
 from deepstack.example_strategy import random_strategy, constant_action
-from deepstack.best_response import best_response
+from deepstack.best_response import compute_best_response
 
 
 class Leduc(ExtensiveGame):

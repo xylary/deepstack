@@ -94,7 +94,7 @@ def br(game, info_set, reach_probs, strategy, br_strategy, i):
         return best_br
 
 
-def best_response(game, strategy, i):
+def compute_best_response(game, strategy, i):
     """ Given a game (defined by an ExtensiveGame) and a strategy (defined by a
     dictionary from nodes in the game tree to probabilities over actions),
     returns the best response for player i against the other player.
@@ -113,6 +113,6 @@ def compute_exploitability(game, strategy):
     # First compute the best response against the strategy when the strategy
     # plays as player 1. Then compute the best response against the strategy
     # when it plays as player 2.
-    exploitability_1, br_against_1 = best_response(game, strategy, 1)
-    exploitability_2, br_against_2 = best_response(game, strategy, 2)
+    exploitability_1, br_against_1 = compute_best_response(game, strategy, 1)
+    exploitability_2, br_against_2 = compute_best_response(game, strategy, 2)
     return exploitability_1 + exploitability_2
